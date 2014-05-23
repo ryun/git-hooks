@@ -5,8 +5,8 @@ pre-commit
 ----------
 Catches common errors, such as checking in...
 
-	1. git merge conflict markers
-	2. Check for probable private key commits. 
+1. git merge conflict markers
+2. Check for possible private key in commits. 
 
 Setup/Install
 ============
