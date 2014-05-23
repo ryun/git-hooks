@@ -1,0 +1,52 @@
+#!/usr/bin/env ruby
+
+# Git pre-commit hook that catches common code errors.
+
+############# CONFIGURATION
+
+# "Forbidden" regular expressions
+FORBIDDEN = [
+  />>>>>>/,    # Git conflict markers
+  /<<<<<</
+]
+
+# Warning signs that someone is committing a private key
+PRIVATE_KEY = [
+  /PRIVATE KEY/,
+  /ssh-rsa/
+]
+
+############# END OF CONFIGURATION
+
+# Loop over ALL errors and warnings and return ALL problems.
+
+error_found = false
+
+full_diff = `git diff --cached --`
+
+full_diff.scan(%r{^\+\+\+ b/(.+)\n@@.*\n([\s\S]*?)(?:^diff|\z)}).each do |file, diff|
+  added = diff.split("\n").select { |x| x.start_with?("+") }.join("\n")
+  
+  # Scan for "forbidden" calls
+  FORBIDDEN.each do |re|
+    if added.match(re)
+      puts %{Error: git pre-commit hook forbids committing lines with "#{$1 || $&}" to #{file}\n--------------}
+      error_found = true
+    end
+  end
+
+  # Scan for private key indicators
+  PRIVATE_KEY.each do |re|
+    if added.match(re)
+      puts %{Error: git pre-commit hook detected a probable private key commit: "#{$1 || $&}" to #{file}\n--------------}
+      error_found = true
+    end
+  end
+
+end
+
+# Finally, report errors
+if error_found
+  puts "To commit anyway, use --no-verify"
+  exit 1
+end
