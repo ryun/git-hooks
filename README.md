@@ -4,7 +4,8 @@ Git Hooks
 pre-commit
 ----------
 Catches common errors, such as checking in...
-    1. git merge conflict markers
+
+	1. git merge conflict markers
 	2. Check for probable private key commits. 
 
 Setup/Install
